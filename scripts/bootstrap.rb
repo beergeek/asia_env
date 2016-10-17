@@ -7,19 +7,23 @@ require 'facter'
 require 'puppetclassify'
 
 @hkg_com_group = {
-  "pe_repo" => {"master" => "puppet.hkg.puppet.vm"}
+  "pe_repo" => {"master" => "lb.hkg.puppet.vm"},
+  "role::com" => {}
 }
 
 @sin_com_group = {
-  "pe_repo" => {"master" => "puppet.sin.puppet.vm"}
+  "pe_repo" => {"master" => "lb.sin.puppet.vm"},
+  "role::com" => {}
 }
 
 @kl0_com_group = {
-  "pe_repo" => {"master" => "puppet.kl0.puppet.vm"}
+  "pe_repo" => {"master" => "lb.kl0.puppet.vm"},
+  "role::com" => {}
 }
 
 @kl1_com_group = {
-  "pe_repo" => {"master" => "puppet.kl1.puppet.vm"}
+  "pe_repo" => {"master" => "lb.kl1.puppet.vm"},
+  "role::com" => {}
 }
 
 @amq_hub_group = {
@@ -40,6 +44,10 @@ require 'puppetclassify'
 
 @kl1_mco_group = {
   "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["puppet.kl1.puppet.vm"]}
+}
+
+@lb_group = {
+  "role::lb" => {}
 }
 
 @hiera_config = <<-EOS
@@ -222,12 +230,51 @@ def new_token(login, token_dir = nil)
   end
 end
 
+def deploy_code
+  cputs "Deploying code"
+  load_api_config
+  response = JSON.parse(@api_setup.post_with_token("#{@cm_url}/v1/deploys",{"deploy-all" => true, "wait" => true}.to_json).body)
+  response.each do |x|
+    if x['status'] != 'complete'
+      raise Puppet::Error, "Code deployment failed, #{response.code} #{response.body}"
+    end
+  end
+end
+
+def commit_code
+  cputs "Commiting code"
+  load_api_config
+  response = JSON.parse(@api_setup.post_with_token("#{@fs_url}/v1/commit",{"commit-all" => true}.to_json).body)
+  if response['puppet-code']['status'] != 'ok'
+    raise Puppet::Error, "Code deployment failed, #{response['puppet-code']['status']}"
+  end
+end
+
+def test_class(class_name)
+  load_classifier
+  class_found = false
+  while class_found == false do
+    @classifier.update_classes.update
+    response = JSON.parse(@api_setup.get_with_token(URI.escape("#{@classifier_url}/v1/environments/production/classes/#{class_name}")).body)
+    if response['name'] == class_name
+      class_found = true
+      cputs "Found #{class_name} in NC registry"
+    else
+      cputs "#{class_name} not in NC registry as yet"
+      commit_code
+      sleep(30)
+    end
+  end
+end
+
 def cputs(string)
   puts "\033[1m#{string}\033[0m"
 end
 
 fix_hiera(@hiera_config)
 new_user({ 'login' => 'deployer','display_name' => 'deployer','email' => 'deployer@puppet.com','role_ids' => [1]},'/root/.puppetlabs')
+deploy_code
+commit_code
 update_master("PE Master", {"pe_repo::platform::aix_61_power" => {},"pe_repo::platform::aix_71_power" => {}, "pe_repo::platform::el_7_x86_64" => {}},["or",["or",["=",["trusted","extensions","pp_role"],"kl1_com"],["=",["trusted","extensions","pp_role"],"kl0_com"],["=",["trusted","extensions","pp_role"],"sin_com"],["=",["trusted","extensions","pp_role"],"hkg_com"]],["=","name","master.puppet.vm"]])
 update_master("PE ActiveMQ Broker", {"puppet_enterprise::profile::amq::broker" => {}}, ["or",["=",["trusted","extensions","pp_role"],"hkg_com"],["=",["trusted","extensions","pp_role"],"sin_com"],["=",["trusted","extensions","pp_role"],"kl0_com"],["=",["trusted","extensions","pp_role"],"kl1_com"]])
 create_group("HKG PE Compiler",'937f05eb-8185-4517-a609-3e64d05191c0',@hkg_com_group,["or",["=",["trusted","extensions","pp_role"],"hkg_com"]],'PE Master')
@@ -239,3 +286,4 @@ create_group("HKG PE MCollective",'937f05eb-8185-4517-a609-3e64d05191c5',@hkg_mc
 create_group("SIN PE MCollective",'937f05eb-8185-4517-a609-3e64d05191c6',@sin_mco_group,["and",["=",["trusted","extensions","pp_datacenter"],"sin"],["not",["=",["trusted","extensions","pp_role"],"son_com"]]],'PE MCollective')
 create_group("KL0 PE MCollective",'937f05eb-8185-4517-a609-3e64d05191c7',@kl0_mco_group,["and",["=",["trusted","extensions","pp_datacenter"],"kl0"],["not",["=",["trusted","extensions","pp_role"],"kl0_com"]]],'PE MCollective')
 create_group("KL1 PE MCollective",'937f05eb-8185-4517-a609-3e64d05191c8',@kl1_mco_group,["and",["=",["trusted","extensions","pp_datacenter"],"kl1"],["not",["=",["trusted","extensions","pp_role"],"kl1_com"]]],'PE MCollective')
+create_group("LB","937f05eb-8185-4517-a609-3e64d05191c9",@lb_group,["or",["=",["trusted","extensions","pp_role"],"hkg_lb"],["=",["trusted","extensions","pp_role"],"sin_lb"],["=",["trusted","extensions","pp_role"],"kl0_lb"],["=",["trusted","extensions","pp_role"],"kl1_lb"]],"All Nodes")

@@ -53,7 +53,7 @@ roles:
         inline: |-
           mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
           cp /vagrant/com_hkg.attributes /etc/puppetlabs/puppet/csr_attributes.yaml
-          curl -sk https://master.puppet.vm:8140/packages/current/install.bash | /bin/bash -s main:dns_alt_names='puppet.hkg.puppet.vm'
+          curl -sk https://master.puppet.vm:8140/packages/current/install.bash | /bin/bash -s main:dns_alt_names='lb.hkg.puppet.vm'
 
   pe-puppet-agent-lb-hkg:
     private_networks:

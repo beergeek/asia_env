@@ -16,7 +16,6 @@ vms:
   box: puppetlabs/centos-7.2-64-nocm
   roles:
   - pe-puppet-agent-lb-hkg
-  autostart: false
 - name: hkg2.puppet.vm
   box: puppetlabs/centos-7.2-64-nocm
   roles:
