@@ -1,0 +1,24 @@
+---
+vms:
+- name: master.puppet.vm
+  box: puppetlabs/centos-7.2-64-nocm
+  roles:
+  - pe-puppet-master
+- name: hkg0.puppet.vm
+  box: puppetlabs/centos-7.2-64-nocm
+  roles:
+  - pe-puppet-agent-com-hkg
+- name: hkg1.puppet.vm
+  box: puppetlabs/centos-7.2-64-nocm
+  roles:
+  - pe-puppet-agent-com-hkg
+- name: hkg_lb_puppet.vm
+  box: puppetlabs/centos-7.2-64-nocm
+  roles:
+  - pe-puppet-agent-lb-hkg
+  autostart: false
+- name: hkg2.puppet.vm
+  box: puppetlabs/centos-7.2-64-nocm
+  roles:
+  - pe-puppet-agent-hkg
+  autostart: false

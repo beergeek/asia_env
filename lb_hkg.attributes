@@ -1,0 +1,4 @@
+---
+extension_requests:
+  pp_role: hkg_lb
+  pp_datacenter: hkg

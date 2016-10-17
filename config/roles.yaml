@@ -1,0 +1,68 @@
+---
+roles:
+  pe-puppet-master:
+    private_networks:
+      - {ip: '0.0.0.0', auto_network: true}
+    providers:
+      - type: virtualbox
+        customize:
+          - [modifyvm, !ruby/sym id, '--memory', 4096]
+          - [modifyvm, !ruby/sym id, '--ioapic', 'on']
+          - [modifyvm, !ruby/sym id, '--cpus', '4']
+    provisioners:
+      - type: shell
+        inline: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"
+      - type: shell
+        inline: "systemctl stop firewalld"
+      - type: shell
+        inline: "systemctl disable firewalld"
+      - type: hosts
+      - type: pe_bootstrap
+        role: !ruby/sym master
+        answer_file: pe.conf
+      - type: shell
+        inline: '/opt/puppetlabs/puppet/bin/gem install puppetclassify'
+      - type: shell
+        path: "scripts/bootstrap.rb"
+
+  pe-puppet-agent:
+    private_networks:
+      - {ip: '0.0.0.0', auto_network: true}
+    provisioners:
+      - {type: shell, inline: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"}
+      - {type: hosts}
+
+  pe-puppet-agent-hkg:
+    private_networks:
+      - {ip: '0.0.0.0', auto_network: true}
+    provisioners:
+      - {type: shell, inline: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"}
+      - {type: hosts}
+      - type: shell
+        inline: |-
+          mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
+          curl -sk https://hkg0.puppet.vm:8140/packages/current/install.bash | /bin/bash
+
+  pe-puppet-agent-com-hkg:
+    private_networks:
+      - {ip: '0.0.0.0', auto_network: true}
+    provisioners:
+      - {type: shell, inline: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"}
+      - {type: hosts}
+      - type: shell
+        inline: |-
+          mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
+          cp /vagrant/com_hkg.attributes /etc/puppetlabs/puppet/csr_attributes.yaml
+          curl -sk https://master.puppet.vm:8140/packages/current/install.bash | /bin/bash -s main:dns_alt_names='puppet.hkg.puppet.vm'
+
+  pe-puppet-agent-lb-hkg:
+    private_networks:
+      - {ip: '0.0.0.0', auto_network: true}
+    provisioners:
+      - {type: shell, inline: "echo 'nameserver 8.8.8.8' > /etc/resolv.conf"}
+      - {type: hosts}
+      - type: shell
+        inline: |-
+          mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
+          cp /vagrant/lb_hkg.attributes /etc/puppetlabs/puppet/csr_attributes.yaml
+          curl -sk https://master.puppet.vm:8140/packages/current/install.bash | /bin/bash
