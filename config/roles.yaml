@@ -41,7 +41,7 @@ roles:
       - type: shell
         inline: |-
           mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
-          curl -sk https://hkg0.puppet.vm:8140/packages/current/install.bash | /bin/bash
+          curl -sk https://lb.hkg.puppet.vm:8140/packages/current/install.bash | /bin/bash
 
   pe-puppet-agent-com-hkg:
     private_networks:

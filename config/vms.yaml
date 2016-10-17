@@ -12,7 +12,7 @@ vms:
   box: puppetlabs/centos-7.2-64-nocm
   roles:
   - pe-puppet-agent-com-hkg
-- name: hkg_lb_puppet.vm
+- name: lb.hkg.puppet.vm
   box: puppetlabs/centos-7.2-64-nocm
   roles:
   - pe-puppet-agent-lb-hkg
