@@ -31,19 +31,19 @@ require 'puppetclassify'
 }
 
 @hkg_mco_group = {
-  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["puppet.hkg.puppet.vm"]}
+  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["lb.hkg.puppet.vm"]}
 }
 
 @sin_mco_group = {
-  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["puppet.sin.puppet.vm"]}
+  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["lb.sin.puppet.vm"]}
 }
 
 @kl0_mco_group = {
-  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["puppet.kl0.puppet.vm"]}
+  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["lb.kl0.puppet.vm"]}
 }
 
 @kl1_mco_group = {
-  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["puppet.kl1.puppet.vm"]}
+  "puppet_enterprise::profile::mcollective::agent" => {"activemq_brokers" => ["lb.kl1.puppet.vm"]}
 }
 
 @lb_group = {
