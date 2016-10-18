@@ -277,7 +277,7 @@ deploy_code
 commit_code
 update_master("PE Master", {"pe_repo::platform::aix_61_power" => {},"pe_repo::platform::aix_71_power" => {}, "pe_repo::platform::el_7_x86_64" => {}},["or",["or",["=",["trusted","extensions","pp_role"],"kl1_com"],["=",["trusted","extensions","pp_role"],"kl0_com"],["=",["trusted","extensions","pp_role"],"sin_com"],["=",["trusted","extensions","pp_role"],"hkg_com"]],["=","name","master.puppet.vm"]])
 update_master("PE ActiveMQ Broker", {"puppet_enterprise::profile::amq::broker" => {}}, ["or",["=",["trusted","extensions","pp_role"],"hkg_com"],["=",["trusted","extensions","pp_role"],"sin_com"],["=",["trusted","extensions","pp_role"],"kl0_com"],["=",["trusted","extensions","pp_role"],"kl1_com"]])
-create_group("PE MoM",'937f05eb-8185-4517-a609-3e64d05191d0',{"profile::base" => {}},["or",["=","certname","master.puppet.vm"]],'All Nodes')
+create_group("PE MoM",'937f05eb-8185-4517-a609-3e64d05191d0',{"role::mom" => {}},["or",["=","certname","master.puppet.vm"]],'All Nodes')
 create_group("HKG PE Compiler",'937f05eb-8185-4517-a609-3e64d05191c0',@hkg_com_group,["or",["=",["trusted","extensions","pp_role"],"hkg_com"]],'PE Master')
 create_group("SIN PE Compiler",'937f05eb-8185-4517-a609-3e64d05191c1',@sin_com_group,["or",["=",["trusted","extensions","pp_role"],"sin_com"]],'PE Master')
 create_group("KL0 PE Compiler",'937f05eb-8185-4517-a609-3e64d05191c2',@kl0_com_group,["or",["=",["trusted","extensions","pp_role"],"kl0_com"]],'PE Master')
