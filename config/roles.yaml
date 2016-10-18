@@ -41,6 +41,7 @@ roles:
       - type: shell
         inline: |-
           mkdir -p /etc/puppetlabs/{facter/facts.d,puppet}
+          cp /vagrant/node_hkg.attributes /etc/puppetlabs/puppet/csr_attributes.yaml
           curl -sk https://lb.hkg.puppet.vm:8140/packages/current/install.bash | /bin/bash
 
   pe-puppet-agent-com-hkg:
